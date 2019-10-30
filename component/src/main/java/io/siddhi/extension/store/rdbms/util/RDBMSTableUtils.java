@@ -56,6 +56,7 @@ import javax.xml.bind.Unmarshaller;
 
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CONTAINS_CONDITION_REGEX;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.DATABASE_PRODUCT_NAME;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IDENTIFIER_QUOTE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.MAX_VERSION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.MIN_VERSION;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
@@ -417,6 +418,7 @@ public class RDBMSTableUtils {
             result.put(DATABASE_PRODUCT_NAME, dmd.getDatabaseProductName());
             result.put(VERSION, Double.parseDouble(dmd.getDatabaseMajorVersion() + "."
                     + dmd.getDatabaseMinorVersion()));
+            result.put(IDENTIFIER_QUOTE, dmd.getIdentifierQuoteString());
             return result;
         } catch (SQLException e) {
             throw new RDBMSTableException("Error in looking up database type: " + e.getMessage(), e);

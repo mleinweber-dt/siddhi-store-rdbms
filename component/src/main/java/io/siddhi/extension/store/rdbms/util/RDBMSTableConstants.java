@@ -25,7 +25,8 @@ public class RDBMSTableConstants {
     //Constants for retrieving database metadata information
     public static final String VERSION = "Version";
     public static final String DATABASE_PRODUCT_NAME = "Database Product Name";
-
+    public static final String IDENTIFIER_QUOTE = "Identifier Quote";
+    
     //Placeholder strings needed for processing the query configuration file
     public static final String RDBMS_QUERY_CONFIG_FILE = "rdbms-table-config.xml";
     public static final String PLACEHOLDER_COLUMNS_FOR_CREATE = "{{COLUMNS, PRIMARY_KEYS}}";

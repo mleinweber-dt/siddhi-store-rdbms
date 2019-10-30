@@ -69,8 +69,9 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     private StringBuilder outerCompiledCondition;
 
     private String[] supportedFunctions = {"sum", "avg", "min", "max"};
+    private String identifierQuote;
 
-    public RDBMSConditionVisitor(String tableName, boolean isAfterSelectClause) {
+    public RDBMSConditionVisitor(String tableName, boolean isAfterSelectClause, String identifierQuote) {
         this.tableName = tableName;
         this.condition = new StringBuilder();
         this.streamVarCount = 0;
@@ -81,6 +82,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         this.outerCompiledCondition = new StringBuilder();
         this.lastConditionParams = new Stack<>();
         this.isAfterSelectClause = isAfterSelectClause;
+        this.identifierQuote = identifierQuote;
     }
 
     private RDBMSConditionVisitor() {
@@ -402,9 +404,11 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
     public void beginVisitStoreVariable(String storeId, String attributeName, Attribute.Type type) {
         if (!lastConditionExist) {
             if (!isAfterSelectClause) {
-                condition.append(this.tableName).append(".").append(attributeName).append(WHITESPACE);
-                outerCompiledCondition.append(this.tableName).append(".").append(attributeName).append(EQUALS)
-                        .append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
+                condition.append(identifierQuote).append(this.tableName).append(identifierQuote).append(".")
+                .append(identifierQuote).append(attributeName).append(identifierQuote).append(WHITESPACE);
+                outerCompiledCondition.append(identifierQuote).append(this.tableName).append(identifierQuote)
+                .append(".").append(identifierQuote).append(attributeName).append(identifierQuote).append(EQUALS)
+                .append(SUB_SELECT_QUERY_REF).append(".").append(attributeName);
             } else {
                 condition.append(attributeName).append(WHITESPACE);
             }

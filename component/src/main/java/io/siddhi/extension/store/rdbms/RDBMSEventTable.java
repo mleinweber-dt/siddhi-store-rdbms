@@ -98,6 +98,7 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FIELD_SIZ
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IDENTIFIER_QUOTE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
@@ -586,6 +587,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String stringSize;
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
+    private String identifierQuote;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
@@ -608,8 +610,46 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         this.tableName = RDBMSTableUtils.isEmpty(tableName) ? tableDefinition.getId() : tableName;
         String tableCheckQuery = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_CHECK_QUERY);
         this.tableCheckQuery = RDBMSTableUtils.isEmpty(tableCheckQuery) ? null : tableCheckQuery;
+        try {
+          if (dataSource == null) {
+              if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
+                  try {
+                      BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
+                              .getBundleContext();
+                      ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
+                              .getName());
+                      if (serviceRef == null) {
+                          throw new RDBMSTableException("DatasourceService : '" +
+                                  DataSourceService.class.getCanonicalName() + "' cannot be found.");
+                      } else {
+                          DataSourceService dataSourceService = (DataSourceService) bundleContext
+                                  .getService(serviceRef);
+                          this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                          this.isLocalDatasource = false;
+                          if (log.isDebugEnabled()) {
+                              log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
+                                      "DataSource Service lookup.");
+                          }
+                      }
+                  } catch (DataSourceException e) {
+                      throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
+                  }
+              } else {
+                  if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
+                      this.lookupDatasource(jndiResourceName);
+                  } else {
+                      this.initializeDatasource(storeAnnotation);
+                  }
+              }
+          }
+          this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
+              .get(IDENTIFIER_QUOTE);
+        } catch (NamingException | RDBMSTableException e) {
+          this.destroy();
+          log.debug("Failed to initialize store for table name '" + this.tableName + "'", e);
+      }
     }
-
+    
     @Override
     protected void add(List<Object[]> records) throws ConnectionUnavailableException {
         String sql = this.composeInsertQuery();
@@ -1032,7 +1072,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
 
     @Override
     protected CompiledCondition compileCondition(ExpressionBuilder expressionBuilder) {
-        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
+        RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false, identifierQuote);
         expressionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters(),
                 visitor.isContainsConditionExist(), visitor.getOrdinalOfContainPattern(), false, null, null,
@@ -1280,7 +1320,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String insertColumnNames() {
         StringBuilder columnNames = new StringBuilder();
         for (int i = 0; i < attributes.size(); i++) {
-            columnNames.append(attributes.get(i).getName()).append(WHITESPACE).append(SEPARATOR);
+            columnNames.append(this.identifierQuote + attributes.get(i).getName() + this.identifierQuote)
+            .append(WHITESPACE).append(SEPARATOR);
         }
         //Deleting the last two characters to remove the WHITESPACE and SEPARATOR
         columnNames.delete(columnNames.length() - 2, columnNames.length() - 1);
@@ -1295,9 +1336,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String composeUpdateQuery(CompiledCondition compiledCondition,
                                       Map<String, CompiledExpression> updateSetExpressions) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        String result = updateSetExpressions.entrySet().stream().map(e -> e.getKey()
-                + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
-                .collect(Collectors.joining(", "));
+        String result = updateSetExpressions.entrySet().stream().map(e -> identifierQuote + e.getKey()
+        + identifierQuote + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
+        .collect(Collectors.joining(", "));
         String localRecordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, result);
 
         localRecordUpdateQuery = RDBMSTableUtils.isEmpty(condition) ? localRecordUpdateQuery.
@@ -1386,7 +1427,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (statement == null) {
             return null;
         }
-        return statement.replace(PLACEHOLDER_TABLE_NAME, this.tableName);
+        return statement.replace(PLACEHOLDER_TABLE_NAME, this.identifierQuote 
+                + this.tableName + this.identifierQuote);
     }
 
     /**
@@ -1410,7 +1452,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 ANNOTATION_ELEMENT_FIELD_LENGTHS));
         this.validateFieldLengths(fieldLengths);
         this.attributes.forEach(attribute -> {
-            builder.append(attribute.getName()).append(WHITESPACE);
+            builder.append(this.identifierQuote + attribute.getName() + this.identifierQuote).append(WHITESPACE);
             switch (attribute.getType()) {
                 case BOOL:
                     builder.append(booleanType);
@@ -1979,7 +2021,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         boolean containsLastFunction = false;
         List<RDBMSConditionVisitor> conditionVisitorList = new ArrayList<>();
         for (SelectAttributeBuilder attributeBuilder : selectAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, false, identifierQuote);
             attributeBuilder.getExpressionBuilder().build(visitor);
             if (visitor.isLastConditionExist()) {
                 containsLastFunction = true;
@@ -2066,7 +2108,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (ExpressionBuilder expressionBuilder : expressionBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, isHavingClause);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, isHavingClause, identifierQuote);
             expressionBuilder.build(visitor);
 
             String compiledCondition = visitor.returnCondition();
@@ -2097,7 +2139,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         int offset = 0;
 
         for (OrderByAttributeBuilder orderByAttributeBuilder : orderByAttributeBuilders) {
-            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, true);
+            RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName, true, identifierQuote);
             orderByAttributeBuilder.getExpressionBuilder().build(visitor);
 
             String compiledCondition = visitor.returnCondition();

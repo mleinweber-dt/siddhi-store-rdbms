@@ -40,8 +40,8 @@
             </activation>
             <modules>
                 <module>component</module>
-                <module>tests</module>
-                <module>coverage-reports</module>
+                <!--<module>tests</module>
+                <module>coverage-reports</module>-->
             </modules>
         </profile>
     </profiles>
@@ -595,6 +595,14 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>3.0.4</version>
+                    <configuration>
+                        <failOnError>${maven.findbugs.failure.strict}</failOnError>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
