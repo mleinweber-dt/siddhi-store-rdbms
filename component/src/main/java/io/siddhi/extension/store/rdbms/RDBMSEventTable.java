@@ -52,9 +52,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -75,6 +74,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
@@ -614,25 +614,22 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
           if (dataSource == null) {
               if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
                   try {
-                      BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
-                              .getBundleContext();
-                      ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
-                              .getName());
+                      BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class).getBundleContext();
+                      ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
+                              "(" + dataSourceName + "=" + dataSourceName + ")")
+                              .stream().findAny().orElse(null);
                       if (serviceRef == null) {
-                          throw new RDBMSTableException("DatasourceService : '" +
-                                  DataSourceService.class.getCanonicalName() + "' cannot be found.");
+                          throw new RDBMSTableException("DatasourceService cannot be found.");
                       } else {
-                          DataSourceService dataSourceService = (DataSourceService) bundleContext
-                                  .getService(serviceRef);
-                          this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
+                          this.dataSource = (HikariDataSource) bundleContext.getService(serviceRef);
                           this.isLocalDatasource = false;
                           if (log.isDebugEnabled()) {
                               log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
                                       "DataSource Service lookup.");
                           }
                       }
-                  } catch (DataSourceException e) {
-                      throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
+                  } catch (InvalidSyntaxException e) {
+                          throw new RuntimeException("Filter not valid");
                   }
               } else {
                   if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
@@ -1090,27 +1087,29 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             if (dataSource == null) {
                 if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
-                    try {
-                        BundleContext bundleContext = FrameworkUtil.getBundle(DataSourceService.class)
-                                .getBundleContext();
-                        ServiceReference serviceRef = bundleContext.getServiceReference(DataSourceService.class
-                                .getName());
-                        if (serviceRef == null) {
-                            throw new RDBMSTableException("DatasourceService : '" +
-                                    DataSourceService.class.getCanonicalName() + "' cannot be found.");
-                        } else {
-                            DataSourceService dataSourceService = (DataSourceService) bundleContext
-                                    .getService(serviceRef);
-                            this.dataSource = (HikariDataSource) dataSourceService.getDataSource(dataSourceName);
-                            this.isLocalDatasource = false;
-                            if (log.isDebugEnabled()) {
-                                log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
-                                        "DataSource Service lookup.");
-                            }
-                        }
-                    } catch (DataSourceException e) {
-                        throw new RDBMSTableException("Datasource '" + dataSourceName + "' cannot be connected.", e);
-                    }
+                     try {
+                          BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class)
+                                  .getBundleContext();
+                          ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
+                              "(dataSourceName=" + dataSourceName + ")")
+                                  .stream().findAny().orElse(null);
+                          if (serviceRef == null) {
+                              throw new RDBMSTableException("DatasourceService cannot be found.");
+                          } else {
+                              this.dataSource = (HikariDataSource) bundleContext.getService(serviceRef);
+                              this.isLocalDatasource = false;
+                              if (log.isDebugEnabled()) {
+                                  log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
+                                          "DataSource Service lookup.");
+                              }
+                          }
+                          if (this.identifierQuote == null) {
+                                  this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
+                                          .get(IDENTIFIER_QUOTE);
+                          }
+                     } catch (InvalidSyntaxException e) {
+                         throw new RuntimeException("Filter not valid");
+                     }
                 } else {
                     if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
                         this.lookupDatasource(jndiResourceName);
