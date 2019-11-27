@@ -616,8 +616,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                   try {
                       BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class).getBundleContext();
                       ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
-                              "(" + dataSourceName + "=" + dataSourceName + ")")
-                              .stream().findAny().orElse(null);
+                                  "(dataSourceName=" + dataSourceName + ")")
+                                  .stream().findAny().orElse(null);
                       if (serviceRef == null) {
                           throw new RDBMSTableException("DatasourceService cannot be found.");
                       } else {
@@ -1702,7 +1702,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             for (int i = 0; i < this.attributes.size(); i++) {
                 attribute = this.attributes.get(i);
                 Object value = record[i];
-                if (value != null || attribute.getType() == Attribute.Type.STRING) {
+                if (true) {
+                //if (value != null || attribute.getType() == Attribute.Type.STRING) {
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
                 } else {
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +

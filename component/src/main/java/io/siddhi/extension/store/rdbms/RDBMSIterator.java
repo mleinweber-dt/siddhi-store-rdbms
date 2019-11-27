@@ -103,25 +103,25 @@ public class RDBMSIterator implements RecordIterator<Object[]> {
         for (Attribute attribute : this.attributes) {
             switch (attribute.getType()) {
                 case BOOL:
-                    result.add(rs.getBoolean(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), Boolean.class));
                     break;
                 case DOUBLE:
-                    result.add(rs.getDouble(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), Double.class));
                     break;
                 case FLOAT:
-                    result.add(rs.getFloat(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), Float.class));
                     break;
                 case INT:
-                    result.add(rs.getInt(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), Integer.class));
                     break;
                 case LONG:
-                    result.add(rs.getLong(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), Long.class));
                     break;
                 case OBJECT:
                     result.add(rs.getObject(attribute.getName()));
                     break;
                 case STRING:
-                    result.add(rs.getString(attribute.getName()));
+                    result.add(rs.getObject(attribute.getName(), String.class));
                     break;
             }
         }

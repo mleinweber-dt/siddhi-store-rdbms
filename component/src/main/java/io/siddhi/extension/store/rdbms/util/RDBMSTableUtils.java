@@ -40,6 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -293,21 +294,42 @@ public class RDBMSTableUtils {
      */
     public static void populateStatementWithSingleElement(PreparedStatement stmt, int ordinal, Attribute.Type type,
                                                           Object value) throws SQLException {
+
         switch (type) {
             case BOOL:
-                stmt.setBoolean(ordinal, (Boolean) value);
+                if (value == null) {
+                    stmt.setNull(ordinal, Types.BOOLEAN);
+                } else {
+                    stmt.setBoolean(ordinal, (Boolean) value);
+                }
                 break;
             case DOUBLE:
-                stmt.setDouble(ordinal, (Double) value);
+                if (value == null) {
+                    stmt.setNull(ordinal, Types.DOUBLE);
+                } else {
+                    stmt.setDouble(ordinal, (Double) value);
+                }
                 break;
-            case FLOAT:
-                stmt.setFloat(ordinal, (Float) value);
+               case FLOAT:
+                if (value == null) {
+                    stmt.setNull(ordinal, Types.FLOAT);
+                } else {
+                    stmt.setFloat(ordinal, (Float) value);
+                }
                 break;
             case INT:
-                stmt.setInt(ordinal, (Integer) value);
+                if (value == null) {
+                    stmt.setNull(ordinal, Types.INTEGER);
+                } else {
+                    stmt.setInt(ordinal, (Integer) value);
+                }
                 break;
             case LONG:
-                stmt.setLong(ordinal, (Long) value);
+                if (value == null) {
+                    stmt.setNull(ordinal, Types.BIGINT);
+                } else {
+                    stmt.setLong(ordinal, (Long) value);
+                }
                 break;
             case OBJECT:
                 stmt.setObject(ordinal, value);
