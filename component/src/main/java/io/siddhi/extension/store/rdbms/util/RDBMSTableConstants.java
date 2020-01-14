@@ -84,6 +84,7 @@ public class RDBMSTableConstants {
     public static final String ANNOTATION_ELEMENT_FIELD_LENGTHS = "field.length";
     public static final String ANNOTATION_ELEMENT_POOL_PROPERTIES = "pool.properties";
     public static final String ANNOTATION_ELEMENT_JNDI_RESOURCE = "jndi.resource";
+    public static final String ANNOTATION_ELEMENT_CREATE_TABLE = "create.table";
     public static final String ANNOTATION_DRIVER_CLASS_NAME = "jdbc.driver.name";
     public static final String ANNOTATION_ELEMENT_DATASOURCE = "datasource";
 

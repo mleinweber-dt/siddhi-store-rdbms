@@ -55,10 +55,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,76 +74,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_POOL_PROPERTIES;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_CHECK_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BATCH_ENABLE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BATCH_SIZE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BIG_STRING_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.DOUBLE_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FIELD_SIZE_LIMIT;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IDENTIFIER_QUOTE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_WRAPPER_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OFFSET_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OFFSET_WRAPPER_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ORDER_BY_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_FOR_CREATE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX_NUMBER;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INNER_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_SELECTORS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_VALUES;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.QUERY_WRAPPER_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_CONTAINS_CONDITION;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_DELETE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_EXISTS_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_INSERT_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_SIZE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_TYPE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CHECK_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TRANSACTION_SUPPORTED;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.*;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindConditionWithContainsConditionTemplate;
 
 /**
@@ -191,6 +119,12 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "null"),
+                @Parameter(name = "create.table",
+                        description = "Defines if the Eventtable shell be create in the store or a exception is thrown " +
+                                "if the table is not present.",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false"),
                 @Parameter(name = "table.name",
                         description = "The name with which the event table should be persisted in the store. If no " +
                                 "name is specified via this parameter, the event table is persisted with the same " +
@@ -561,6 +495,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private List<Attribute> attributes;
     private ConfigReader configReader;
     private String jndiResourceName;
+    private boolean createTable;
     private Annotation storeAnnotation;
     private Annotation primaryKeys;
     private List<Annotation> indices;
@@ -600,6 +535,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         RDBMSTableUtils.validateAnnotation(primaryKeys);
         indices.forEach(RDBMSTableUtils::validateAnnotation);
         jndiResourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_JNDI_RESOURCE);
+        createTable = Boolean.parseBoolean(storeAnnotation.getElement(ANNOTATION_ELEMENT_CREATE_TABLE));
         dataSourceName = storeAnnotation.getElement(ANNOTATION_ELEMENT_DATASOURCE);
         if (null != configReader) {
             this.configReader = configReader;
@@ -611,42 +547,29 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         String tableCheckQuery = storeAnnotation.getElement(ANNOTATION_ELEMENT_TABLE_CHECK_QUERY);
         this.tableCheckQuery = RDBMSTableUtils.isEmpty(tableCheckQuery) ? null : tableCheckQuery;
         try {
-          if (dataSource == null) {
-              if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
-                  try {
-                      BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class).getBundleContext();
-                      ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
-                                  "(dataSourceName=" + dataSourceName + ")")
-                                  .stream().findAny().orElse(null);
-                      if (serviceRef == null) {
-                          throw new RDBMSTableException("DatasourceService cannot be found.");
-                      } else {
-                          this.dataSource = (HikariDataSource) bundleContext.getService(serviceRef);
-                          this.isLocalDatasource = false;
-                          if (log.isDebugEnabled()) {
-                              log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
-                                      "DataSource Service lookup.");
-                          }
-                      }
-                  } catch (InvalidSyntaxException e) {
-                          throw new RuntimeException("Filter not valid");
-                  }
-              } else {
-                  if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
-                      this.lookupDatasource(jndiResourceName);
-                  } else {
-                      this.initializeDatasource(storeAnnotation);
-                  }
-              }
-          }
-          this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
-              .get(IDENTIFIER_QUOTE);
+            if (dataSource == null) {
+                if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
+                    try {
+                        getPaxDataSource();
+                    } catch (InvalidSyntaxException e) {
+                        throw new RuntimeException("Filter not valid");
+                    }
+                } else {
+                    if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
+                        this.lookupDatasource(jndiResourceName);
+                    } else {
+                        this.initializeDatasource(storeAnnotation);
+                    }
+                }
+            }
+            this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
+                    .get(IDENTIFIER_QUOTE);
         } catch (NamingException | RDBMSTableException e) {
-          this.destroy();
-          log.debug("Failed to initialize store for table name '" + this.tableName + "'", e);
-      }
+            this.destroy();
+            log.debug("Failed to initialize store for table name '" + this.tableName + "'", e);
+        }
     }
-    
+
     @Override
     protected void add(List<Object[]> records) throws ConnectionUnavailableException {
         String sql = this.composeInsertQuery();
@@ -683,6 +606,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         "condition: '" + QUESTION_MARK + "'");
             }
         }
+
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs;
@@ -776,11 +700,13 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 if (counter == batchSize) {
                     stmt.executeBatch();
                     stmt.clearBatch();
+                    conn.commit();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
+                conn.commit();
             }
         } catch (SQLException e) {
             try {
@@ -842,12 +768,14 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 counter++;
                 if (counter == batchSize) {
                     stmt.executeBatch();
+                    conn.commit();
                     stmt.clearBatch();
                     counter = 0;
                 }
             }
             if (counter > 0) {
                 stmt.executeBatch();
+                conn.commit();
             }
         } catch (SQLException e) {
             try {
@@ -926,6 +854,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 if (counter % batchSize == batchSize - 1) {
                     recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                             ((counter / batchSize) * batchSize)));
+                    conn.commit();
                     updateStmt.clearBatch();
                 }
                 counter++;
@@ -933,6 +862,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             if (counter % batchSize > 0) {
                 recordInsertIndexList.addAll(this.filterRequiredInsertIndex(updateStmt.executeBatch(),
                         (counter - (counter % batchSize))));
+                conn.commit();
             }
             return recordInsertIndexList;
         } catch (SQLException e) {
@@ -1033,10 +963,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     }
                 }
                 counter++;
-                if (counter % batchSize > 0) {
-                    insertStmt.executeBatch();
-                    conn.commit();
-                }
+            }
+            if (counter % batchSize > 0) {
+                insertStmt.executeBatch();
+                conn.commit();
             }
         } catch (SQLException e) {
             try {
@@ -1087,29 +1017,11 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             if (dataSource == null) {
                 if (!RDBMSTableUtils.isEmpty(dataSourceName)) {
-                     try {
-                          BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class)
-                                  .getBundleContext();
-                          ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
-                              "(dataSourceName=" + dataSourceName + ")")
-                                  .stream().findAny().orElse(null);
-                          if (serviceRef == null) {
-                              throw new RDBMSTableException("DatasourceService cannot be found.");
-                          } else {
-                              this.dataSource = (HikariDataSource) bundleContext.getService(serviceRef);
-                              this.isLocalDatasource = false;
-                              if (log.isDebugEnabled()) {
-                                  log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
-                                          "DataSource Service lookup.");
-                              }
-                          }
-                          if (this.identifierQuote == null) {
-                                  this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
-                                          .get(IDENTIFIER_QUOTE);
-                          }
-                     } catch (InvalidSyntaxException e) {
-                         throw new RuntimeException("Filter not valid");
-                     }
+                    try {
+                        getPaxDataSource();
+                    } catch (InvalidSyntaxException e) {
+                        throw new RuntimeException("Filter not valid");
+                    }
                 } else {
                     if (!RDBMSTableUtils.isEmpty(jndiResourceName)) {
                         this.lookupDatasource(jndiResourceName);
@@ -1117,6 +1029,10 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         this.initializeDatasource(storeAnnotation);
                     }
                 }
+            }
+            if (this.identifierQuote == null) {
+                    this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
+                            .get(IDENTIFIER_QUOTE);
             }
             if (this.queryConfigurationEntry == null) {
                 this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
@@ -1253,6 +1169,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 rdbmsSelectQueryTemplate.getOffsetWrapperClause()));
             }
             if (!this.tableExists()) {
+                if (!createTable){
+                    throw new RDBMSTableException("Table does not exist but create.table=false");
+                }
                 this.createTable(storeAnnotation, primaryKeys, indices);
                 if (log.isDebugEnabled()) {
                     log.debug("A table: " + this.tableName + " is created with the provided information.");
@@ -1263,6 +1182,25 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
                     this.tableName + "'", e);
         }
+    }
+
+    private void getPaxDataSource() throws InvalidSyntaxException {
+        BundleContext bundleContext = FrameworkUtil.getBundle(RDBMSEventTable.class)
+                .getBundleContext();
+        ServiceReference serviceRef = bundleContext.getServiceReferences(DataSource.class,
+                "(dataSourceName=" + dataSourceName + ")")
+                .stream().findAny().orElse(null);
+        if (serviceRef == null) {
+            throw new RDBMSTableException("DatasourceService cannot be found.");
+        } else {
+            this.dataSource = (HikariDataSource) bundleContext.getService(serviceRef);
+            this.isLocalDatasource = false;
+            if (log.isDebugEnabled()) {
+                log.debug("Lookup for datasource '" + dataSourceName + "' completed through " +
+                        "DataSource Service lookup.");
+            }
+        }
+
     }
 
     @Override
@@ -1320,7 +1258,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         StringBuilder columnNames = new StringBuilder();
         for (int i = 0; i < attributes.size(); i++) {
             columnNames.append(this.identifierQuote + attributes.get(i).getName() + this.identifierQuote)
-            .append(WHITESPACE).append(SEPARATOR);
+                    .append(WHITESPACE).append(SEPARATOR);
         }
         //Deleting the last two characters to remove the WHITESPACE and SEPARATOR
         columnNames.delete(columnNames.length() - 2, columnNames.length() - 1);
@@ -1336,8 +1274,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                       Map<String, CompiledExpression> updateSetExpressions) {
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
         String result = updateSetExpressions.entrySet().stream().map(e -> identifierQuote + e.getKey()
-        + identifierQuote + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
-        .collect(Collectors.joining(", "));
+                + identifierQuote + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
+                .collect(Collectors.joining(", "));
         String localRecordUpdateQuery = recordUpdateQuery.replace(PLACEHOLDER_COLUMNS_VALUES, result);
 
         localRecordUpdateQuery = RDBMSTableUtils.isEmpty(condition) ? localRecordUpdateQuery.
@@ -1396,7 +1334,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
      * @return a new {@link Connection} instance from the datasource.
      */
     private Connection getConnection() throws ConnectionUnavailableException {
-        return this.getConnection(true);
+        return this.getConnection(false);
     }
 
     /**
@@ -1426,7 +1364,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         if (statement == null) {
             return null;
         }
-        return statement.replace(PLACEHOLDER_TABLE_NAME, this.identifierQuote 
+        return statement.replace(PLACEHOLDER_TABLE_NAME, this.identifierQuote
                 + this.tableName + this.identifierQuote);
     }
 
@@ -1703,7 +1641,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 attribute = this.attributes.get(i);
                 Object value = record[i];
                 if (true) {
-                //if (value != null || attribute.getType() == Attribute.Type.STRING) {
+                    //if (value != null || attribute.getType() == Attribute.Type.STRING) {
                     RDBMSTableUtils.populateStatementWithSingleElement(stmt, i + 1, attribute.getType(), value);
                 } else {
                     throw new RDBMSTableException("Cannot Execute Insert/Update: null value detected for " +
