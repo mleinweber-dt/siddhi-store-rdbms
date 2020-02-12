@@ -8,7 +8,7 @@ podTemplate(
         containers: [
                 containerTemplate(
                         name: 'maven',
-                        image: 'maven:3-jdk-9',
+                        image: 'maven:3.6.3-jdk-8',
                         ttyEnabled: true,
                         command: 'cat')
         ]
