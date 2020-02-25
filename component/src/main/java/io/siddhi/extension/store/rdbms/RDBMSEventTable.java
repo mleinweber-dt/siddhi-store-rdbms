@@ -55,23 +55,12 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.*;
@@ -1031,8 +1020,8 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 }
             }
             if (this.identifierQuote == null) {
-                    this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
-                            .get(IDENTIFIER_QUOTE);
+                this.identifierQuote = (String) RDBMSTableUtils.lookupDatabaseInfo(this.dataSource)
+                        .get(IDENTIFIER_QUOTE);
             }
             if (this.queryConfigurationEntry == null) {
                 this.queryConfigurationEntry = RDBMSTableUtils.lookupCurrentQueryConfigurationEntry(this.dataSource,
@@ -1169,7 +1158,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                                 rdbmsSelectQueryTemplate.getOffsetWrapperClause()));
             }
             if (!this.tableExists()) {
-                if (!createTable){
+                if (!createTable) {
                     throw new RDBMSTableException("Table does not exist but create.table=false");
                 }
                 this.createTable(storeAnnotation, primaryKeys, indices);
@@ -1616,6 +1605,19 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         try {
             stmt = conn.prepareStatement(tableCheckQuery);
             rs = stmt.executeQuery();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            List<String> colNames = new LinkedList<>();
+            for (int i = 0; i < rsmd.getColumnCount(); i++) {
+                colNames.add(rsmd.getColumnName(i + 1));
+            }
+            for (Attribute attribute : attributes) {
+
+                if (!colNames.contains(attribute.getName())) {
+                    throw new RDBMSTableException("Table" + tableName + " does not contain " + attribute.getName());
+                }
+            }
+
+            String name = rsmd.getColumnName(1);
             return true;
         } catch (SQLException e) {
             if (log.isDebugEnabled()) {

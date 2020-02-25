@@ -2,7 +2,7 @@
 <rdbms-table-configuration>
     <database name="h2">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -37,7 +37,7 @@
     </database>
     <database name="mysql">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -71,7 +71,7 @@
     </database>
     <database name="oracle" maxVersion = "12.0">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -110,7 +110,7 @@
     </database>
     <database name="oracle" minVersion = "12.1">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} WHERE rownum=1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -146,7 +146,7 @@
     </database>
     <database name="Microsoft SQL Server">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT TOP 1 1 from {{TABLE_NAME}}</tableCheckQuery>
+        <tableCheckQuery>SELECT TOP 1 * from {{TABLE_NAME}}</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT TOP 1 1 FROM {{TABLE_NAME}} {{CONDITION}}</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -180,7 +180,7 @@
     </database>
     <database name="PostgreSQL">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -214,7 +214,7 @@
     </database>
     <database name="DB2.*">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} FETCH FIRST 1 ROWS ONLY</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} FETCH FIRST 1 ROWS ONLY</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
@@ -249,7 +249,7 @@
     </database>
     <database name="Apache Derby">
         <tableCreateQuery>CREATE TABLE {{TABLE_NAME}} ({{COLUMNS, PRIMARY_KEYS}})</tableCreateQuery>
-        <tableCheckQuery>SELECT 1 FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
+        <tableCheckQuery>SELECT * FROM {{TABLE_NAME}} LIMIT 1</tableCheckQuery>
         <indexCreateQuery>CREATE INDEX {{TABLE_NAME}}_INDEX_{{INDEX_NUM}} ON {{TABLE_NAME}} ({{INDEX_COLUMNS}})</indexCreateQuery>
         <recordExistsQuery>SELECT 1 FROM {{TABLE_NAME}} {{CONDITION}} LIMIT 1</recordExistsQuery>
         <recordSelectQuery>SELECT * FROM {{TABLE_NAME}} {{CONDITION}}</recordSelectQuery>
