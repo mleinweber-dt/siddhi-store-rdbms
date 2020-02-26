@@ -1616,8 +1616,6 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                     throw new RDBMSTableException("Table" + tableName + " does not contain " + attribute.getName());
                 }
             }
-
-            String name = rsmd.getColumnName(1);
             return true;
         } catch (SQLException e) {
             if (log.isDebugEnabled()) {
