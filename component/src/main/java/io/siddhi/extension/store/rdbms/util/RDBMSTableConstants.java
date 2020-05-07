@@ -63,6 +63,7 @@ public class RDBMSTableConstants {
     public static final String SQL_NOT_NULL = "NOT NULL";
     public static final String SQL_PRIMARY_KEY_DEF = "PRIMARY KEY";
     public static final String SQL_WHERE = "WHERE";
+    public static final String SQL_COLLATE = "COLLATE";
     public static final String SQL_AS = " AS ";
     public static final String SQL_MAX = "MAX"; // Used for incrementalAggregator:last()
     public static final String WHITESPACE = " ";
@@ -73,7 +74,7 @@ public class RDBMSTableConstants {
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String SUB_SELECT_QUERY_REF = "t2";
 
-    public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z.]*)(\\s\\?\\s\\))";
+    public static final String CONTAINS_CONDITION_REGEX = "(CONTAINS\\()([a-zA-z0-9_.]*)(\\s\\?\\s\\))";
 
     //Annotation field names
     public static final String ANNOTATION_ELEMENT_URL = "jdbc.url";
@@ -114,6 +115,7 @@ public class RDBMSTableConstants {
     public static final String BATCH_SIZE = "batchSize";
     public static final String FIELD_SIZE_LIMIT = "fieldSizeLimit";
     public static final String BATCH_ENABLE = "batchEnable";
+    public static final String COLLATION = "collation";
     public static final String TRANSACTION_SUPPORTED = "transactionSupported";
     public static final String SELECT_QUERY_TEMPLATE = "selectQueryTemplate";
     public static final String SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE = "selectQueryWithSubSelect";
@@ -129,6 +131,8 @@ public class RDBMSTableConstants {
     public static final String LIMIT_WRAPPER_CLAUSE = "limitWrapperClause";
     public static final String OFFSET_WRAPPER_CLAUSE = "offsetWrapperClause";
     public static final String MICROSOFT_SQL_SERVER_NAME = "Microsoft SQL Server";
+
+    public static final String USE_COLLATION = "use.collation";
 
     private RDBMSTableConstants() {
         //preventing initialization

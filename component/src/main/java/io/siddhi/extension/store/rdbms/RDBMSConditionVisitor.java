@@ -25,8 +25,10 @@ import io.siddhi.extension.store.rdbms.util.RDBMSTableUtils;
 import io.siddhi.query.api.definition.Attribute;
 import io.siddhi.query.api.expression.condition.Compare;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.Stack;
@@ -60,7 +62,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     private boolean isContainsConditionExist;
     private boolean nextProcessContainsPattern;
-    private int ordinalOfContainPattern = 1;
+    private List<Integer> ordinalOfContainPattern;
 
     private boolean containsAttributeFunction = false;
     private boolean lastConditionExist = false;
@@ -83,6 +85,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         this.lastConditionParams = new Stack<>();
         this.isAfterSelectClause = isAfterSelectClause;
         this.identifierQuote = identifierQuote;
+        this.ordinalOfContainPattern = new ArrayList<>();
     }
 
     private RDBMSConditionVisitor() {
@@ -110,7 +113,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
         return lastConditionExist;
     }
 
-    public int getOrdinalOfContainPattern() {
+    public List<Integer> getOrdinalOfContainPattern() {
         return ordinalOfContainPattern;
     }
 
@@ -248,6 +251,10 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
 
     @Override
     public void endVisitIsNull(String streamId) {
+        if (this.isAfterSelectClause) {
+           throw new OperationNotSupportedException("The RDBMS Event table does not support 'IS NULL' functions " +
+                   "in having clause.");
+        }
         condition.append(RDBMSTableConstants.SQL_IS_NULL).append(WHITESPACE);
     }
 
@@ -439,7 +446,7 @@ public class RDBMSConditionVisitor extends BaseExpressionVisitor {
                 if (this.placeholders.containsKey(candidate)) {
                     this.parameters.put(ordinal, this.placeholders.get(candidate));
                     if (candidate.contains("pattern-value")) {
-                        ordinalOfContainPattern = ordinal;
+                        ordinalOfContainPattern.add(ordinal);
                     }
                     ordinal++;
                 }

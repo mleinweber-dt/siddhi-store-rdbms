@@ -63,7 +63,79 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
-import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.*;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_DRIVER_CLASS_NAME;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_FIELD_LENGTHS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_JNDI_RESOURCE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_PASSWORD;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_POOL_PROPERTIES;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_CHECK_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BATCH_ENABLE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BATCH_SIZE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BIG_STRING_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BINARY_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.BOOLEAN_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.COLLATION;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.DOUBLE_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FIELD_SIZE_LIMIT;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.FLOAT_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.GROUP_BY_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.HAVING_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INDEX_CREATE_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.INTEGER_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IS_LIMIT_BEFORE_OFFSET;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LIMIT_WRAPPER_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.LONG_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OFFSET_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OFFSET_WRAPPER_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ORDER_BY_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_FOR_CREATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_CONDITION;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INDEX_NUMBER;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_INNER_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_Q;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_SELECTORS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_TABLE_NAME;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PLACEHOLDER_VALUES;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.PROPERTY_SEPARATOR;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.QUERY_WRAPPER_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.QUESTION_MARK;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_CONTAINS_CONDITION;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_DELETE_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_EXISTS_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_INSERT_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_SELECT_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.RECORD_UPDATE_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SELECT_QUERY_WITH_SUB_SELECT_TEMPLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SEPARATOR;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AND;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_AS;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_COLLATE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_MAX;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_NOT_NULL;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SQL_PRIMARY_KEY_DEF;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_SIZE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.STRING_TYPE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.SUB_SELECT_QUERY_REF;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CHECK_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TABLE_CREATE_QUERY;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TRANSACTION_SUPPORTED;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.TYPE_MAPPING;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHERE_CLAUSE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.WHITESPACE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.IDENTIFIER_QUOTE;
+import static io.siddhi.extension.store.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_CREATE_TABLE;
 import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindConditionWithContainsConditionTemplate;
 
 /**
@@ -139,7 +211,15 @@ import static io.siddhi.extension.store.rdbms.util.RDBMSTableUtils.processFindCo
                         type = {DataType.STRING},
                         optional = true,
                         defaultValue = "The tableCheckQuery which define in store rdbms configs"
-                )
+                ),
+                @Parameter(name = "use.collation",
+                        description = "This property allows users to use collation for string attirbutes. By " +
+                                "default it's false and binary collation is not used. Currently 'latin1_bin' and " +
+                                "'SQL_Latin1_General_CP1_CS_AS' are used as collations for MySQL and " +
+                                "Microsoft SQL database types respectively.",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false")
         },
         examples = {
                 @Example(
@@ -512,11 +592,15 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
     private String recordContainsConditionTemplate;
     private RDBMSSelectQueryTemplate rdbmsSelectQueryTemplate;
     private String identifierQuote;
+    private boolean useCollation = false;
+    private String collation;
 
     @Override
     protected void init(TableDefinition tableDefinition, ConfigReader configReader) {
         attributes = tableDefinition.getAttributeList();
         storeAnnotation = AnnotationHelper.getAnnotation(ANNOTATION_STORE, tableDefinition.getAnnotations());
+        useCollation = Boolean.parseBoolean(storeAnnotation.getElement(RDBMSTableConstants
+                .USE_COLLATION));
         primaryKeys = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
         indices = AnnotationHelper.getAnnotations(SiddhiConstants.ANNOTATION_INDEX,
@@ -1066,6 +1150,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                         this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
                                 TRANSACTION_SUPPORTED, String.valueOf(
                                 this.queryConfigurationEntry.isTransactionSupported())));
+                collation = configReader.readConfig(
+                        this.queryConfigurationEntry.getDatabaseName() + PROPERTY_SEPARATOR +
+                                COLLATION, String.valueOf(this.queryConfigurationEntry.getCollation()));
                 RDBMSTypeMapping typeMapping = this.queryConfigurationEntry.getRdbmsTypeMapping();
                 booleanType = configReader.readConfig(this.queryConfigurationEntry.getDatabaseName() +
                                 PROPERTY_SEPARATOR + TYPE_MAPPING + PROPERTY_SEPARATOR + BOOLEAN_TYPE,
@@ -1170,7 +1257,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             this.destroy();
             throw new ConnectionUnavailableException("Failed to initialize store for table name '" +
                     this.tableName + "'", e);
-        }
+        } 
     }
 
     private void getPaxDataSource() throws InvalidSyntaxException {
@@ -1411,6 +1498,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                             builder.append(CLOSE_PARENTHESIS);
                         }
                     }
+                    if (useCollation && collation != null) {
+                        builder.append(WHITESPACE).append(SQL_COLLATE).append(WHITESPACE).append(collation);
+                    }
                     break;
             }
             if (this.queryConfigurationEntry.isKeyExplicitNotNull()) {
@@ -1464,7 +1554,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
         List<String> attributeNames = new ArrayList<>();
         this.attributes.forEach(attribute -> attributeNames.add(attribute.getName()));
         fieldLengths.keySet().forEach(field -> {
-            if (!attributeNames.contains(field)) {
+            if (!field.equals(SiddhiConstants.AGG_SHARD_ID_COL) && !attributeNames.contains(field)) {
                 throw new RDBMSTableException("Field '" + field + "' (for which a size of " + fieldLengths.get(field)
                         + " has been specified) does not exist in the table's list of fields.");
             }
@@ -2036,8 +2126,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledOuterOnCondition.setLength(compiledOuterOnCondition.length() - 4);
         }
 
-        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, 0, containsLastFunction,
-                compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString(), null, null);
+        return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false, new ArrayList<>(),
+                containsLastFunction, compiledSubSelectQuerySelection.toString(), compiledOuterOnCondition.toString(),
+                null, null);
     }
 
     private RDBMSCompiledCondition compileClause(List<ExpressionBuilder> expressionBuilders, boolean isHavingClause) {
@@ -2068,7 +2159,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
-                0, false, null, null, null, null);
+                new ArrayList<>(), false, null, null, null, null);
     }
 
     private RDBMSCompiledCondition compileOrderByClause(List<OrderByAttributeBuilder> orderByAttributeBuilders) {
@@ -2105,7 +2196,7 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
             compiledSelectionList.setLength(compiledSelectionList.length() - 2); // Removing the last comma separator.
         }
         return new RDBMSCompiledCondition(compiledSelectionList.toString(), paramMap, false,
-                0, false, null, null, null, null);
+                new ArrayList<>(), false, null, null, null, null);
     }
 
     private static class DefaultConfigReader implements ConfigReader {

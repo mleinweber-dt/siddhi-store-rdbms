@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.siddhi.extension.store.rdbms</groupId>
         <artifactId>siddhi-store-rdbms-parent</artifactId>
-        <version>7.0.1.3</version>
+        <version>7.0.5.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -51,10 +51,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.datasources</groupId>
@@ -151,6 +147,8 @@
                             io.siddhi.core.*;version="${siddhi.version.range}",
                             io.siddhi.annotation.*;version="${siddhi.version.range}",
                             io.siddhi.query.*;version="${siddhi.version.range}",
+                            javax.xml.bind,
+                            javax.xml.bind.annotation,
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
