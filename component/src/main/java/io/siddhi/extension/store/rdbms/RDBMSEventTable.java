@@ -2097,7 +2097,9 @@ public class RDBMSEventTable extends AbstractQueryableRecordTable {
                 compiledSelectionList.append(compiledCondition);
                 if (selectAttributeBuilder.getRename() != null && !selectAttributeBuilder.getRename().isEmpty()) {
                     compiledSelectionList.append(SQL_AS).
-                            append(selectAttributeBuilder.getRename());
+                            append(identifierQuote).
+                            append(selectAttributeBuilder.getRename()).
+                            append(identifierQuote);
                 }
                 compiledSelectionList.append(SEPARATOR);
             }
